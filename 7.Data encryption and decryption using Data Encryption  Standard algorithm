@@ -1,0 +1,49 @@
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <openssl/des.h> 
+ 
+void encryptDES(char *key, char *plaintext, char *ciphertext) { 
+DES_cblock des_key; 
+DES_key_schedule schedule; 
+DES_string_to_key(key, &des_key); 
+DES_set_key_checked(&des_key, &schedule); 
+DES_ecb_encrypt((const_DES_cblock *)plaintext, (DES_cblock *)ciphertext, &schedule, 
+DES_ENCRYPT); 
+} 
+ 
+ 
+void decryptDES(char *key, char *ciphertext, char *plaintext) { 
+ 
+  
+ 
+ 
+DES_cblock des_key; 
+DES_key_schedule schedule; 
+DES_string_to_key(key, &des_key); 
+DES_set_key_checked(&des_key, &schedule); 
+DES_ecb_encrypt((const_DES_cblock *)ciphertext, (DES_cblock *)plaintext, &schedule, 
+DES_DECRYPT); 
+} 
+ 
+ 
+int main() { 
+char key[24]; 
+char plaintext[1024]; 
+char ciphertext[1024]; 
+printf("Enter the key (24 characters): "); 
+scanf("%s", key); 
+getchar(); // consume newline character 
+printf("Enter the plaintext: "); 
+fgets(plaintext, sizeof(plaintext), stdin); 
+plaintext[strcspn(plaintext, "\n")] = 0; // remove newline character 
+ 
+ 
+encryptDES(key, plaintext, ciphertext); 
+printf("\nEncrypted ciphertext: %s\n", ciphertext); 
+ 
+decryptDES(key, ciphertext, plaintext); 
+printf("Decrypted plaintext: %s\n", plaintext); 
+getch(); 
+return 0; 
+} 
