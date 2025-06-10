@@ -1,0 +1,46 @@
+PROGRAM: 
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <string.h> 
+#include <openssl/rsa.h> 
+#include <openssl/pem.h> 
+ 
+int main() { 
+ 
+ 
+RSA *keypair; 
+int keylen; 
+char plaintext[1024]; 
+char ciphertext[1024]; 
+char decryptedtext[1024]; 
+ 
+// Generate a new RSA key pair 
+keypair = RSA_new(); 
+BIGNUM *e = BN_new(); 
+BN_set_word(e, 3); 
+RSA_generate_key_ex(keypair, 1024, e, NULL); 
+ 
+ 
+// Get the length of the RSA key 
+keylen = RSA_size(keypair); 
+ 
+printf("Enter the plaintext: "); 
+fgets(plaintext, 1024, stdin); 
+ 
+// Encrypt the plaintext 
+RSA_public_encrypt(strlen(plaintext)+1, plaintext, ciphertext, keypair, 
+RSA_PKCS1_PADDING); 
+printf("Encrypted ciphertext: %s\n", ciphertext); 
+ 
+ 
+// Decrypt the ciphertext 
+RSA_private_decrypt(keylen, ciphertext, decryptedtext, keypair, 
+RSA_PKCS1_PADDING); 
+printf("Decrypted plaintext: %s\n", decryptedtext); 
+ 
+ 
+RSA_free(keypair); 
+BN_free(e); 
+getch(); 
+return 0; 
+} 
