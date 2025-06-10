@@ -1,0 +1,81 @@
+PROGRAM 
+// Stop and wait protocol 
+#include<stdio.h> 
+#include<conio.h> 
+#include<stdlib.h> 
+void main() 
+{ 
+int i, j, noframes, x, x1=10, x2; 
+ 
+for (i=0;i<200;i++) 
+rand(); 
+noframes=rand()/200; 
+i=1; 
+j=1; 
+noframes=noframes/8; 
+printf("\n number of frames is %d", noframes); 
+ 
+while(noframes>0) 
+{ 
+printf("\n sending frame %d", i); 
+srand(x1++); 
+x=rand()%10; 
+if(x%2==0) 
+{ 
+for(x2=1;x2<2;x2++) 
+{ 
+printf("waiting for %d seconds \n",x2); 
+sleep(x2); 
+ 
+} 
+printf("\n sending frame %d" , i); 
+srand(x1++); 
+x=rand()%10; 
+ 
+} 
+printf("\n ack for frame %d",j); 
+noframes-=1; 
+i++; 
+j++; 
+} 
+printf("\n end of stop and wait protocol"); 
+getch(); 
+} 
+
+
+
+
+
+
+
+
+ 
+//Sliding Window Protocol 
+#include<stdio.h> 
+#include<conio.h> 
+void main() 
+{ 
+char sender[50],receiver[50]; 
+int i,winsize; 
+ 
+printf("\n ENTER THE WINDOWS SIZE : "); 
+scanf("%d",&winsize); 
+printf("\n SENDER WINDOW IS EXPANDED TO STORE MESSAGE OR WINDOW 
+\n"); 
+printf("\n ENTER THE DATA TO BE SENT: "); 
+fflush(stdin); 
+gets(sender); 
+for(i=0;i<winsize;i++) 
+receiver[i]=sender[i]; 
+receiver[i]=NULL; 
+printf("\n MESSAGE SEND BY THE SENDER:\n"); 
+puts(sender); 
+printf("\n WINDOW SIZE OF RECEIVER IS EXPANDED\n"); 
+printf("\n ACKNOWLEDGEMENT FROM RECEIVER \n"); 
+for(i=0;i<winsize;i++); 
+printf("\n ACK:%d",i); 
+printf("\n MESSAGE RECEIVED BY RECEIVER IS : "); 
+puts(receiver); 
+printf("\n WINDOW SIZE OF RECEIVER IS SHRINKED \n"); 
+getch(); 
+} 
