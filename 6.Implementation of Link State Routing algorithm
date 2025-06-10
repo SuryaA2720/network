@@ -1,0 +1,107 @@
+#include <stdio.h> 
+#include <limits.h> 
+#define NODES 5 
+ 
+int adj_matrix[NODES][NODES]; 
+void dijkstra(int src) 
+{ 
+int dist[NODES]; 
+int visited[NODES] = { 0 }; 
+int prev[NODES] = { -1 }; 
+ 
+// Initialize distances as infinity except for the source node 
+for (int i = 0; i < NODES; i++) 
+{ 
+dist[i] = INT_MAX; 
+} 
+dist[src - 1] = 0; 
+1 5 2 
+2 4 
+3 3 3 
+4 
+4 5 
+ // Find shortest path for all nodes 
+for (int count = 0; count < NODES - 1; count++) 
+{ 
+int u = -1; 
+// Select the minimum distance node from the set of nodes not yet processed 
+for (int i = 0; i < NODES; i++) 
+{ 
+if (!visited[i] && (u == -1 || dist[i] < dist[u])) 
+{ 
+u = i; 
+} 
+} 
+// Mark the selected node as visited 
+visited[u] = 1; 
+// Update the distance of adjacent nodes 
+for (int v = 0; v < NODES; v++) 
+{ 
+if (adj_matrix[u][v] && !visited[v]) 
+{ 
+int new_dist = dist[u] + adj_matrix[u][v]; 
+if (new_dist < dist[v]) 
+{ 
+dist[v] = new_dist; 
+prev[v] = u; 
+} 
+} 
+} 
+} 
+ 
+ 
+// Display the routing table for the source node 
+printf("Routing table for node %d:\n", src); 
+printf("Destination\tPath\tCost\n"); 
+for (int i = 0; i < NODES; i++) 
+  
+if (i != src - 1) 
+{ 
+printf("%d\t\t", i + 1); 
+int path[NODES]; 
+int j = 0, k = i; 
+while (k != src - 1 && prev[k] != -1) 
+{ 
+path[j++] = k; 
+k = prev[k]; 
+} 
+if (prev[k] == -1) 
+{ 
+printf("No path\t"); 
+} else 
+{ 
+printf("%d ", src); 
+for (int l = j - 1; l >= 0; l--) { 
+printf("%d ", path[l] + 1); 
+} 
+} 
+if (dist[i] == INT_MAX) 
+{ 
+printf("\tINF\n"); 
+} else 
+{ 
+printf("\t%d\n", dist[i]); 
+} 
+} 
+} 
+} 
+void main() 
+{ 
+printf("Enter the adjacency matrix:\n"); 
+   
+ 
+ 
+for (int i = 0; i < NODES; i++) 
+{ 
+for (int j = 0; j < NODES; j++) 
+{ 
+scanf("%d", &adj_matrix[i][j]); 
+} 
+} 
+for (int i = 1; i <= NODES; i++) 
+{ 
+dijkstra(i); 
+printf("\n"); 
+} 
+getch(); 
+}
