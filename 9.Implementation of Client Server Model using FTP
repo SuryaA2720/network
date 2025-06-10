@@ -1,0 +1,138 @@
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <winsock2.h> 
+#include <ws2tcpip.h> 
+#define PORT 5000 
+#define MAXLINE 1024 
+int main() 
+{ 
+WSADATA wsaData; 
+SOCKET sockfd; 
+struct sockaddr_in 
+servaddr; 
+char filename[MAXLINE], buffer[MAXLINE]; 
+// Initialize Winsock 
+int iResult = WSAStartup(MAKEWORD(2,2), &wsaData); 
+if (iResult != 0) { 
+printf("WSAStartup failed: %d\n", iResult); 
+return 1; 
+} 
+// Create a socket 
+sockfd = socket(AF_INET, SOCK_STREAM, 0); 
+if (sockfd == INVALID_SOCKET) { 
+printf("Socket creation failed: %ld\n", WSAGetLastError()); 
+WSACleanup(); 
+return 1; 
+} 
+// Set server address and port 
+servaddr.sin_family = AF_INET; 
+servaddr.sin_addr.s_addr = inet_addr("127.0.0.1"); // Replace with server IP address 
+servaddr.sin_port = htons(PORT); 
+// Connect to the server 
+if (connect(sockfd, (struct sockaddr *)&servaddr, sizeof(servaddr)) != 0) { 
+printf("Connection with the server failed: %ld\n", WSAGetLastError()); 
+closesocket(sockfd); 
+WSACleanup(); 
+return 1; 
+}  
+printf("Connected to server.\n"); 
+// Get filename from user 
+printf("Enter the filename: "); 
+scanf("%s", filename); 
+// Send the filename to the server 
+send(sockfd, filename, MAXLINE, 0); 
+// Receive file from server 
+FILE *fp = fopen(filename, "wb"); 
+int bytesReceived = 0; 
+while ((bytesReceived = recv(sockfd, buffer, MAXLINE, 0)) > 0) { 
+fwrite(buffer, 1, bytesReceived, fp); 
+} 
+printf("File received successfully.\n"); 
+ 
+ 
+// Close socket and clean up Winsock 
+closesocket(sockfd); 
+WSACleanup(); 
+printf("Press any key to exit...\n"); 
+getchar(); // Consume leftover newline character 
+return 0; 
+} 
+
+
+
+
+
+
+
+
+ 
+ 
+SERVER 
+#include <stdio.h> 
+#include <winsock2.h> 
+#define PORT 5000 
+#define MAXLINE 1024 
+int main() { 
+WSADATA wsa; 
+SOCKET sockfd, new_socket; 
+struct sockaddr_in server, client; 
+int client_len, n; 
+char buffer[MAXLINE]; 
+// Initialize Winsock 
+if (WSAStartup(MAKEWORD(2, 2), &wsa) != 0) { 
+printf("WSAStartup failed: %d\n", WSAGetLastError()); 
+return 1; 
+} 
+// Create socket 
+if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET) { 
+printf("socket failed: %d\n", WSAGetLastError()); 
+return 1; 
+} 
+// Bind socket to IP address and port 
+server.sin_family = AF_INET; 
+server.sin_addr.s_addr = INADDR_ANY; 
+server.sin_port = htons(PORT); 
+if (bind(sockfd, (struct sockaddr *)&server, sizeof(server)) == SOCKET_ERROR) { 
+printf("bind failed: %d\n", WSAGetLastError()); 
+closesocket(sockfd); 
+WSACleanup(); 
+return 1; 
+} 
+// Listen for incoming connections  
+listen(sockfd, 5); 
+printf("Server started and listening on port %d...\n", PORT); 
+// Accept incoming connections 
+client_len = sizeof(client); 
+new_socket = accept(sockfd, (struct sockaddr *)&client, &client_len); 
+if (new_socket == INVALID_SOCKET) { 
+printf("accept failed: %d\n", WSAGetLastError()); 
+closesocket(sockfd); 
+WSACleanup(); 
+return 1; 
+} 
+printf("Connection accepted from %s:%d\n", inet_ntoa(client.sin_addr), 
+ntohs(client.sin_port)); 
+// Receive data from client 
+n = recv(new_socket, buffer, MAXLINE, 0); 
+if (n == SOCKET_ERROR) { 
+printf("recv failed: %d\n", WSAGetLastError()); 
+closesocket(new_socket); 
+WSACleanup(); 
+return 1; 
+} 
+printf("Data received from client: %s\n", buffer); 
+// Send response back to client 
+if (send(new_socket, "Server received your message.", 30, 0) == SOCKET_ERROR) { 
+printf("send failed: %d\n", WSAGetLastError()); 
+closesocket(new_socket); 
+WSACleanup(); 
+return 1; 
+} 
+printf("Response sent to client.\n"); 
+getchar(); 
+// Close sockets and cleanup Winsock 
+closesocket(new_socket); 
+closesocket(sockfd); 
+WSACleanup(); 
+return 0; 
+} 
